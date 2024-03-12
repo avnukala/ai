@@ -1,0 +1,114 @@
+function vel = swarm(rad_rep, rad_ori, rad_att, x, N, dxi)
+% FILE: swarm.m implements a Boids-like behavior
+%
+% DESCRIPTION:
+% Boids-like repulsion-orientation-attraction behavior based loosely on the 
+% behavior described by Couzin et al. in the Collective Memory paper. 
+%
+% INPUTS:
+% rad_rep - radius of repulsion
+% rad_ori - radius of orientation
+% rad_att - radius of attraction
+% x - matrix containing the pose of all the robots; x(1, ii) is the
+% position of robot ii along the horizontal axis; x(2, ii) is the position
+% of robot ii along the vertical axis; x(3, ii) is the heading of robot ii
+% in radians. Easier alternative to dealing with radians is to use
+% dxi(:,ii) instead, which is the heading or velocity of robot ii, as a
+% vector
+% blind_neighbors - matrix tracking the robots in a robot's blind spot
+% blind_neighbors not used in the Assignment 
+% neighbors - NxN matrix; entry (ii, jj) is 1 if agents ii and jj are
+% neighbors; otherwise, entry is 0
+% neighbors not used in the Assignment
+% N - the number of robots in the swarm
+% dxi - the current velocity of the robots (2 x N vector); dxi(1, ii) is
+% robot ii's velocity component along the horizontal axis, while dxi(2, ii) 
+% is robot ii's velocity component along the vertical axis 
+%
+% OUTPUTS:
+% vel - the resulting velocity of the robots (2 x N vector)
+%
+% TODO:
+% Return the velocity (i.e., heading) that emerges from implementing 
+% repulsion, orientation, and attracton interaction rules
+
+%% Authors: Safwan Alam, Musad Haque - 2018
+%%%%%%%%%%%%%
+
+% dist(ii, jj) is the distance between robots ii and jj
+dist = distances_from_others(x, N); 
+
+
+% Repulsion
+
+% Orientation
+
+% Attraction
+
+
+
+% Pre-allocate logical matrices for behaviors
+repulsion = false(N);
+orientation = false(N);
+attraction = false(N);
+
+% Iterate over the distance matrix to set behavior states
+for i = 1:N
+    for j = 1:N
+        if dist(i, j) <= rad_rep
+            repulsion(i, j) = true;
+        elseif dist(i, j) <= rad_ori
+            orientation(i, j) = true;
+        elseif dist(i, j) <= rad_att
+            attraction(i, j) = true;
+        end
+    end
+end
+
+
+
+% Accumulate/aggregate the resulting headings in some fashion, depending on
+% how you implement the three behaviors above.
+
+% Loop over each robot in the swarm
+for ii = 1:N
+    % Initialize the velocity change for the current robot
+    velocity_change = zeros(2, 1);
+    for jj = 1:N
+        % Check for repulsion influences
+        if ii ~= jj && repulsion(ii, jj)
+            r_ij = x(1:2, jj) - x(1:2, ii);
+            velocity_change = velocity_change - r_ij / norm(r_ij);
+        else
+        % Check for orientation and attraction influences
+            if ii ~= j
+                if orientation(ii, jj)
+                    v_j = dxi(:, jj);
+                    if v_j ~= 0
+                        velocity_change = velocity_change + v_j / norm(v_j);
+                    end
+                end
+                if attraction(ii, jj)
+                    r_ij = x(1:2, jj) - x(1:2, ii);
+                    velocity_change = velocity_change + r_ij / norm(r_ij);
+                end
+            end
+        end
+    end
+    if ~all(~orientation(ii, :)) && ~all(~attraction(ii, :))
+        velocity_change = velocity_change / 2;
+    end 
+    if ~all(velocity_change == 0)
+        % Update the velocity of the current robot
+        dxi(1:2, ii) = velocity_change;
+    end
+end
+
+% Return the resulting velocity
+vel = dxi;
+
+end
+
+
+
+
